@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Understanding The Digital Asset Frontier — BWS Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0a0e1a;
+    --navy-mid: #111827;
+    --navy-card: #141c2e;
+    --navy-border: #1e2d47;
+    --gold: #d4a017;
+    --gold-light: #f0c040;
+    --gold-dim: #8a6510;
+    --white: #f0f4ff;
+    --muted: #6b7a99;
+    --success: #22c55e;
+    --error: #ef4444;
+    --warning: #f59e0b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--navy);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── LAYOUT ── */
+  .shell { display: flex; min-height: 100vh; }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--navy-card);
+    border-right: 1px solid var(--navy-border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    overflow-y: auto;
+    z-index: 100;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-logo {
+    padding: 28px 24px 20px;
+    border-bottom: 1px solid var(--navy-border);
+  }
+
+  .sidebar-logo .brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    display: block;
+  }
+
+  .sidebar-logo .subtitle {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  .progress-bar-wrap {
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--navy-border);
+  }
+
+  .progress-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .progress-track {
+    height: 3px;
+    background: var(--navy-border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .chapter-nav { padding: 16px 0; flex: 1; }
+
+  .chapter-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 10px 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: background 0.15s;
+    position: relative;
+  }
+
+  .chapter-btn:hover { background: rgba(212,160,23,0.06); }
+
+  .chapter-btn.active {
+    background: rgba(212,160,23,0.1);
+    border-right: 2px solid var(--gold);
+  }
+
+  .chapter-btn.completed .ch-num { background: var(--gold); color: var(--navy); }
+  .chapter-btn.completed .ch-num::after { content: '✓'; }
+
+  .ch-num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--navy-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.2s;
+  }
+
+  .ch-info { flex: 1; }
+
+  .ch-title {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--white);
+    line-height: 1.3;
+    margin-bottom: 2px;
+  }
+
+  .chapter-btn.active .ch-title { color: var(--gold-light); }
+
+  .ch-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  .ch-score {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    margin-left: auto;
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  .sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--navy-border);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    margin-left: 280px;
+    flex: 1;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    padding: 20px 48px;
+    border-bottom: 1px solid var(--navy-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--navy-card);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .topbar-chapter {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .topbar-actions { display: flex; gap: 12px; align-items: center; }
+
+  .btn {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    padding: 8px 20px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-gold {
+    background: var(--gold);
+    color: var(--navy);
+  }
+  .btn-gold:hover { background: var(--gold-light); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--navy-border);
+    color: var(--muted);
+  }
+  .btn-outline:hover { border-color: var(--gold-dim); color: var(--white); }
+
+  /* ── CONTENT AREA ── */
+  .content-area {
+    padding: 48px;
+    max-width: 820px;
+    width: 100%;
+  }
+
+  /* ── CHAPTER HEADER ── */
+  .chapter-header {
+    margin-bottom: 48px;
+  }
+
+  .chapter-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .chapter-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 2px;
+    line-height: 1.05;
+    color: var(--white);
+    margin-bottom: 16px;
+  }
+
+  .chapter-subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    font-weight: 300;
+    max-width: 580px;
+    line-height: 1.6;
+  }
+
+  .chapter-divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--gold-dim), transparent);
+    margin: 32px 0;
+  }
+
+  /* ── KEY CONCEPTS BAR ── */
+  .concepts-bar {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin-bottom: 40px;
+  }
+
+  .concepts-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .concepts-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .concept-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    background: rgba(212,160,23,0.1);
+    border: 1px solid rgba(212,160,23,0.2);
+    color: var(--gold-light);
+    padding: 4px 10px;
+    border-radius: 3px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── SECTIONS ── */
+  .section-block {
+    margin-bottom: 40px;
+  }
+
+  .section-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 1.5px;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-heading::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--navy-border);
+  }
+
+  .section-text {
+    font-size: 16px;
+    color: #c8d0e4;
+    line-height: 1.8;
+    margin-bottom: 16px;
+  }
+
+  /* ── CALLOUT BOX ── */
+  .callout {
+    background: rgba(212,160,23,0.07);
+    border: 1px solid rgba(212,160,23,0.2);
+    border-radius: 6px;
+    padding: 20px 24px;
+    margin: 24px 0;
+  }
+
+  .callout-icon { font-size: 20px; margin-bottom: 8px; }
+
+  .callout-text {
+    font-family: 'Barlow', sans-serif;
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--gold-light);
+    line-height: 1.6;
+  }
+
+  /* ── KEY TERM ── */
+  .key-term-grid {
+    display: grid;
+    gap: 12px;
+    margin: 24px 0;
+  }
+
+  .key-term-row {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 14px 18px;
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-radius: 5px;
+  }
+
+  .key-term-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--gold);
+    min-width: 120px;
+    flex-shrink: 0;
+    padding-top: 2px;
+  }
+
+  .key-term-def {
+    font-size: 14px;
+    color: #a0aec0;
+    line-height: 1.6;
+  }
+
+  /* ── QUOTE BLOCK ── */
+  .quote-block {
+    border-left: 3px solid var(--gold);
+    padding: 16px 24px;
+    margin: 28px 0;
+    background: var(--navy-card);
+    border-radius: 0 6px 6px 0;
+  }
+
+  .quote-text {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--white);
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  /* ── QUIZ SECTION ── */
+  .quiz-section {
+    margin-top: 48px;
+    border-top: 1px solid var(--navy-border);
+    padding-top: 48px;
+  }
+
+  .quiz-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+  }
+
+  .quiz-title-wrap {}
+
+  .quiz-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .quiz-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 2px;
+    color: var(--white);
+  }
+
+  .quiz-counter {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  .quiz-counter span {
+    display: block;
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .question-card {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-radius: 8px;
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .question-card.answered { border-color: var(--navy-border); }
+
+  .question-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .question-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--white);
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    width: 100%;
+    text-align: left;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--navy-border);
+    border-radius: 5px;
+    padding: 12px 18px;
+    color: #a0aec0;
+    font-family: 'Barlow', sans-serif;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.15s;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--gold-dim);
+    color: var(--white);
+    background: rgba(212,160,23,0.06);
+  }
+
+  .option-btn.correct {
+    border-color: var(--success);
+    background: rgba(34,197,94,0.1);
+    color: var(--white);
+  }
+
+  .option-btn.incorrect {
+    border-color: var(--error);
+    background: rgba(239,68,68,0.08);
+    color: #f87171;
+  }
+
+  .option-btn.reveal {
+    border-color: var(--success);
+    background: rgba(34,197,94,0.06);
+    color: #86efac;
+  }
+
+  .option-letter {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    width: 22px;
+    height: 22px;
+    border-radius: 3px;
+    border: 1px solid currentColor;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+
+  .feedback-row {
+    margin-top: 14px;
+    padding: 12px 16px;
+    border-radius: 5px;
+    font-size: 14px;
+    line-height: 1.5;
+    display: none;
+  }
+
+  .feedback-row.show { display: block; }
+  .feedback-row.correct-fb { background: rgba(34,197,94,0.1); color: #86efac; border: 1px solid rgba(34,197,94,0.2); }
+  .feedback-row.incorrect-fb { background: rgba(239,68,68,0.08); color: #fca5a5; border: 1px solid rgba(239,68,68,0.2); }
+
+  /* ── QUIZ RESULTS ── */
+  .quiz-result {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    display: none;
+    margin-top: 24px;
+  }
+
+  .quiz-result.show { display: block; }
+
+  .result-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .result-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .result-message {
+    font-size: 18px;
+    color: var(--white);
+    font-weight: 500;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .result-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  .badge-gold { background: rgba(212,160,23,0.15); border: 1px solid var(--gold); color: var(--gold); }
+  .badge-silver { background: rgba(148,163,184,0.15); border: 1px solid #64748b; color: #94a3b8; }
+  .badge-bronze { background: rgba(239,68,68,0.1); border: 1px solid #ef4444; color: #f87171; }
+
+  .quiz-submit-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--navy-border);
+  }
+
+  .btn-lg {
+    font-size: 15px;
+    padding: 12px 32px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── REFLECTION ── */
+  .reflection-section {
+    margin-top: 40px;
+  }
+
+  .reflection-item {
+    padding: 16px 20px;
+    border-left: 2px solid var(--navy-border);
+    margin-bottom: 12px;
+    font-size: 15px;
+    color: #8899bb;
+    line-height: 1.6;
+    transition: border-color 0.2s;
+  }
+
+  .reflection-item:hover {
+    border-left-color: var(--gold-dim);
+    color: #a0aec0;
+  }
+
+  /* ── CHAPTER NAV FOOTER ── */
+  .chapter-nav-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 32px 48px;
+    border-top: 1px solid var(--navy-border);
+    margin-top: auto;
+  }
+
+  /* ── HOME SCREEN ── */
+  .home-screen {
+    padding: 64px 48px;
+    max-width: 860px;
+  }
+
+  .home-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .home-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 72px;
+    letter-spacing: 3px;
+    line-height: 1.0;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .home-title span { color: var(--gold); }
+
+  .home-subtitle {
+    font-size: 20px;
+    color: var(--muted);
+    font-weight: 300;
+    margin-bottom: 48px;
+    max-width: 520px;
+    line-height: 1.6;
+  }
+
+  .home-pillars {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+
+  .pillar-card {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-radius: 8px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .pillar-card:hover {
+    border-color: var(--gold-dim);
+    transform: translateY(-2px);
+  }
+
+  .pillar-icon { font-size: 28px; margin-bottom: 12px; }
+
+  .pillar-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .pillar-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .pillar-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .home-start-btn {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 3px;
+    padding: 16px 48px;
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .home-start-btn:hover {
+    background: var(--gold-light);
+    transform: translateY(-1px);
+  }
+
+  /* ── MOBILE ── */
+  .mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 200;
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    font-size: 18px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; }
+    .mobile-menu-btn { display: flex; }
+    .content-area, .home-screen { padding: 32px 24px; }
+    .topbar { padding: 16px 24px; }
+    .chapter-nav-footer { padding: 24px; }
+    .home-title { font-size: 48px; }
+    .home-pillars { grid-template-columns: 1fr; }
+    .chapter-title { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="mobile-menu-btn" id="menuBtn" onclick="toggleMenu()">☰</button>
+
+<div class="shell">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <span class="brand">BLOCK WALL STREET</span>
+      <span class="subtitle">Digital Asset Frontier</span>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-label">
+        <span>Course Progress</span>
+        <span id="progressPct">0%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+    <nav class="chapter-nav" id="chapterNav">
+      <!-- injected -->
+    </nav>
+    <div class="sidebar-footer">Knowledge Today. Freedom Tomorrow.</div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main" id="mainContent">
+    <div id="appRoot"></div>
+  </main>
+</div>
+
+<script>
+// ─── DATA ─────────────────────────────────────────────────────────────────────
+
+const chapters = [
+  {
+    id: 0,
+    title: "Home",
+    hidden: true,
+  },
+  {
+    id: 1,
+    title: "What Is Money (Really)?",
+    subtitle: "Money Is Time. Money Is Energy. Money Is Storage.",
+    eyebrow: "Chapter 01",
+    icon: "⚡",
+    concepts: ["Money = Stored Time & Energy", "The Dollar's Weakness", "Inflation as Energy Dilution", "Stronger Storage Vehicles", "Bitcoin's Role"],
+    sections: [
+      {
+        heading: "The Truth About Money",
+        body: `Most people believe money is something you receive — a paycheck, a deposit, a number on a screen. But that perspective misses the deeper reality. Money is what remains after you've already given something up. You gave your time, your effort, your focus, and your energy — and in return, you received a financial container for it.\n\nThis reframes everything. When you work eight hours, you didn't simply "make money." You converted hours of your life, your physical or mental energy, and your attention into a vehicle — one that happens to be denominated in dollars.`,
+      },
+      {
+        heading: "The Problem With the Main Vehicle",
+        body: `Right now, most people store their energy in one place: the U.S. Dollar — which is controlled by the Federal Reserve. The system has the power to create new money out of nothing, adjust interest rates, and expand or contract the money supply at will.\n\nHere's the critical implication: if money equals stored energy, then printing more money dilutes your stored energy. You work all week and store your energy in $1,000. But then more dollars are printed. Now there are more dollars in the system — but the same amount of goods and resources. Each dollar becomes weaker.`,
+      },
+      {
+        heading: "Inflation: The Silent Tax",
+        body: `Inflation is often explained as "prices going up." But what's really happening is your stored time and energy is losing power. Rent goes up, food costs more, gas prices rise — but you didn't get weaker. Your money did.\n\nNobody sends you a bill for inflation. But you pay it every day. Your savings buy less. Your effort holds less value. Your time becomes underpriced. If you store your life's energy in something that is constantly being printed, controlled by centralized power, and designed to lose value over time — you are slowly being drained. Not all at once. But consistently.`,
+      },
+      {
+        heading: "Strong vs. Weak Storage Vehicles",
+        body: `The solution is not to stop earning dollars. The move is to redirect where you store them. Not all money vehicles are equal.\n\nWeak vehicles include the U.S. Dollar — losing value over time, easily printed, controlled. Stronger vehicles are assets that appreciate or hold value better: real estate, stocks, businesses, commodities like gold — and now, Bitcoin.\n\nA strong vehicle is scarce, hard to create, holds value over time, and cannot be easily manipulated. Bitcoin changes the entire structure because it has a fixed supply of 21 million units, no central authority controls it, and it cannot be printed at will.`,
+      },
+    ],
+    keyTerms: [
+      { term: "Stored Energy", def: "The concept that money represents time and effort already expended, not just a neutral medium of exchange." },
+      { term: "Inflation", def: "The dilution of stored energy — when more money is created, each unit represents less real-world value." },
+      { term: "Fiat Currency", def: "Government-issued money (like the U.S. Dollar) not backed by a commodity, subject to expansion by central authorities." },
+      { term: "Scarcity", def: "The quality of being limited in supply — a core property that gives an asset long-term value retention." },
+      { term: "Storage Vehicle", def: "Any asset you choose to hold your converted labor in — ranging from dollars (weak) to Bitcoin (engineered scarcity)." },
+    ],
+    closingThought: "You don't get paid in money. You get paid in hours of your life and pieces of your energy. Money is just the container. So the real question becomes: Where are you storing your life?",
+    reflections: [
+      "If money is your time, why store it in something that loses value?",
+      "What happens to your future if your savings keep weakening year over year?",
+      "What would change if your money held its value instead of losing it?",
+      "Are you earning money — or actually preserving energy?",
+    ],
+    quiz: [
+      {
+        q: "According to the BWS framework, what is money most accurately described as?",
+        options: ["A government-issued medium of exchange", "Stored time and human energy converted into a financial vehicle", "Digital tokens secured by blockchain technology", "A representation of gold held in federal reserves"],
+        answer: 1,
+        feedback: "Correct. BWS defines money as stored time and energy — the vehicle you receive after giving up hours of your life and effort. This reframing is the foundation of the entire course."
+      },
+      {
+        q: "What happens to your stored energy when the Federal Reserve prints more money?",
+        options: ["Your stored energy increases proportionally", "Your stored energy is unaffected", "Your stored energy is diluted — each dollar represents less value", "Your stored energy converts into Bitcoin automatically"],
+        answer: 2,
+        feedback: "Correct. More dollars in the system means each unit holds less purchasing power. This is the dilution effect — your work represents the same amount, but the container now holds less."
+      },
+      {
+        q: "The BWS course describes inflation as which of the following?",
+        options: ["A tax on Bitcoin holders", "The natural result of economic growth", "A silent tax that drains the value of your stored energy without sending you a bill", "An increase in nominal wages across all sectors"],
+        answer: 2,
+        feedback: "Exactly right. Inflation is described as a silent tax — nobody invoices you, but every day your savings buy less. Your time and effort become underpriced over time."
+      },
+      {
+        q: "What distinguishes a 'strong storage vehicle' from a 'weak' one in this framework?",
+        options: ["Strong vehicles are government-backed and insured by the FDIC", "Strong vehicles are scarce, hard to create, hold value over time, and resist manipulation", "Strong vehicles offer the highest short-term interest rates", "Strong vehicles are accessible only to institutional investors"],
+        answer: 1,
+        feedback: "Correct. The key properties of a strong vehicle are scarcity, difficulty to create, long-term value retention, and resistance to manipulation — Bitcoin scores high on all four."
+      },
+      {
+        q: "In the metaphor used in Chapter 1, money is compared to which of the following?",
+        options: ["A river that flows toward the sea", "A battery that stores electricity or a hard drive that stores data", "A stock certificate representing company ownership", "A ledger entry in a bank's database"],
+        answer: 1,
+        feedback: "Right. Just as a battery stores electricity and a hard drive stores data, money stores your life force — your converted labor. The container metaphor is central to BWS's philosophy."
+      },
+      {
+        q: "Why does BWS argue that the U.S. Dollar is a 'leaking container'?",
+        options: ["Because digital transactions are vulnerable to hacking", "Because the dollar loses purchasing power over time due to continuous monetary expansion", "Because paper currency physically degrades", "Because banks charge maintenance fees that erode balances"],
+        answer: 1,
+        feedback: "Correct. The 'leaking container' analogy means that storing your energy in dollars means watching it slowly drain through inflation. Continuous monetary expansion is the leak."
+      },
+      {
+        q: "What is the total fixed supply of Bitcoin as described in Chapter 1?",
+        options: ["100 million units", "1 billion units", "21 million units", "Unlimited — governed by mining difficulty"],
+        answer: 2,
+        feedback: "Correct. Bitcoin's fixed supply of 21 million units is not a policy decision — it is embedded in the code itself. This engineered scarcity is what sets it apart from fiat currencies."
+      },
+      {
+        q: "The chapter introduces 'Two Different Paths.' Path 2 involves which strategy?",
+        options: ["Earning money and keeping it in dollars for safety", "Converting earnings into stronger assets to preserve and grow energy", "Day-trading cryptocurrencies for short-term gains", "Diversifying across all fiat currencies globally"],
+        answer: 1,
+        feedback: "Correct. Path 2 is the energy-preservation path: earn money, convert it into stronger assets, and allow your energy to be preserved — and potentially grow — over time."
+      },
+      {
+        q: "Who created Bitcoin, according to the text?",
+        options: ["Vitalik Buterin", "Charles Hoskinson", "The Federal Reserve as a digital dollar pilot", "Satoshi Nakamoto"],
+        answer: 3,
+        feedback: "Correct. Bitcoin was created by Satoshi Nakamoto, whose true identity remains unknown, as a direct response to the weaknesses exposed in the 2008 financial crisis."
+      },
+      {
+        q: "Which of the following best summarizes the core argument of Chapter 1?",
+        options: ["You should stop saving money entirely and invest everything in Bitcoin immediately", "Understanding what money truly is — stored energy — empowers you to choose better storage vehicles and preserve your life's work", "All forms of currency are equal in their ability to preserve value", "Inflation is a natural and harmless side effect of a growing economy"],
+        answer: 1,
+        feedback: "Exactly right. The goal of Chapter 1 is not to drive panic but to build awareness. Once you understand money as stored energy, you can make intentional decisions about where you store it."
+      },
+    ],
+  },
+  {
+    id: 2,
+    title: "What Is Bitcoin — And Why the World Is Moving Toward It",
+    subtitle: "The Emergence of a New Monetary Foundation",
+    eyebrow: "Chapter 02",
+    icon: "₿",
+    concepts: ["Bitcoin as Infrastructure", "Fixed Supply Architecture", "Decentralization", "Institutional Adoption", "Global Monetary Transition"],
+    sections: [
+      {
+        heading: "Bitcoin as Monetary Infrastructure",
+        body: `Bitcoin was introduced in 2009 by Satoshi Nakamoto. On the surface, it appeared to be a new type of digital money — a way to send payments without banks. But that framing is too small. Bitcoin is not just a currency, a payment network, or a speculative asset.\n\nBitcoin is better understood as a system for storing and transferring value without relying on centralized control. It is monetary infrastructure. The distinction matters enormously: infrastructure is a foundation that other systems are built upon, not merely a tool used within existing ones.`,
+      },
+      {
+        heading: "The Architecture of Bitcoin",
+        body: `What makes Bitcoin different is not just what it does — but how it is built. Bitcoin has a maximum supply of 21 million units. This is not a policy decision. It is not subject to change based on economic conditions. It is embedded into the system itself.\n\nThere is no central authority controlling Bitcoin — no government, no central bank, no executive body. Instead, it is maintained by a distributed network of participants. Every transaction is recorded on a public ledger that is open, auditable, and consistent across the network. Trust is not placed in an institution. It is placed in the system itself. Once recorded, transactions cannot be altered — creating a permanent history of value transfer.`,
+      },
+      {
+        heading: "Why Institutions Are Paying Attention",
+        body: `Large institutions manage capital at scale. They are not concerned with short-term price swings. They are concerned with one thing: preservation of purchasing power over time. In an environment where currencies are continuously expanded, holding large amounts of cash becomes a strategic risk.\n\nBitcoin introduces an alternative: a scarce asset with global liquidity, independent of monetary policy decisions. Corporate treasuries are beginning to explore Bitcoin as a reserve asset that may retain or increase value relative to fiat currency. Pension funds operating on multi-decade timelines are evaluating Bitcoin as a potential hedge against long-term devaluation.`,
+      },
+      {
+        heading: "A Global Transition, Not an Overnight Reset",
+        body: `The idea of a monetary "reset" is often misunderstood. It suggests a single moment where one system ends and another begins. Reality is more complex. What we are witnessing is not a reset — but a transition.\n\nAt present, two monetary systems are operating simultaneously. The existing system relies on fiat currencies, central bank control, and flexible supply. The emerging system is built around digital assets, programmatic scarcity, and decentralized networks. These systems are not replacing each other overnight. They are overlapping. And over time, the balance between them may shift.`,
+      },
+    ],
+    keyTerms: [
+      { term: "Monetary Infrastructure", def: "A foundational system for storing and transferring value — Bitcoin functions as infrastructure, not merely an investment." },
+      { term: "Decentralization", def: "The distribution of control across a network of participants rather than a single central authority." },
+      { term: "Immutability", def: "The property that once a transaction is recorded on the blockchain, it cannot be altered or reversed." },
+      { term: "Reserve Asset", def: "An asset held by institutions (governments, corporations) to preserve purchasing power — historically gold, now potentially Bitcoin." },
+      { term: "Geopolitical Neutrality", def: "Bitcoin's property of not being issued by any nation or tied to any political system, making it a trusted neutral asset." },
+    ],
+    closingThought: "Every era has a dominant way of storing value. For a long time, that vehicle has been controlled, flexible, and inflationary. Now, for the first time in modern history, there is an alternative that is fixed, open, and independent. Will you understand the shift while it's happening — or after it's already moved past you?",
+    reflections: [
+      "What makes Bitcoin structurally different from traditional money?",
+      "Why might institutions prefer scarce assets over large cash holdings?",
+      "How does decentralization change the concept of trust in finance?",
+      "What would it mean for a financial system to be 'backed' by Bitcoin?",
+      "Where is your stored energy currently positioned?",
+    ],
+    quiz: [
+      {
+        q: "How does BWS define Bitcoin beyond being 'digital money'?",
+        options: ["A speculative technology stock", "Monetary infrastructure — a system for storing and transferring value without centralized control", "A government-approved digital payment rail", "An algorithm-based hedge fund strategy"],
+        answer: 1,
+        feedback: "Correct. BWS explicitly moves past the 'digital money' framing. Bitcoin is monetary infrastructure — a foundational layer, not just a currency."
+      },
+      {
+        q: "Which of the following properties of Bitcoin is NOT subject to change based on economic conditions?",
+        options: ["Its transaction processing speed", "Its fixed supply of 21 million units", "Its mining difficulty adjustment", "Its exchange rate against the dollar"],
+        answer: 1,
+        feedback: "Correct. The 21 million supply cap is embedded in the code, not a policy decision. It cannot be changed by any government, institution, or economic circumstance."
+      },
+      {
+        q: "What event in 2008 is described as the context that Bitcoin was built to address?",
+        options: ["The launch of the first iPhone", "A global financial crisis that exposed systemic weaknesses in centralized finance", "The European Union's formation", "The launch of PayPal's international service"],
+        answer: 1,
+        feedback: "Right. The 2008 financial crisis revealed that institutions could take excessive risk, failures could be socialized, and money could be created to stabilize the system — all at the public's expense. Bitcoin was the coded response."
+      },
+      {
+        q: "What does 'immutability' mean in the context of Bitcoin?",
+        options: ["Bitcoin's price cannot go down", "Transactions recorded on the blockchain cannot be altered after the fact", "Bitcoin cannot be converted into other currencies", "Bitcoin wallets cannot be hacked under any circumstances"],
+        answer: 1,
+        feedback: "Correct. Immutability means the historical record of transactions is permanent and tamper-proof. This creates trustless verification — no institution needed."
+      },
+      {
+        q: "Why is Bitcoin described as 'geopolitically neutral'?",
+        options: ["It was created by the United Nations", "It is not issued by any nation or tied to any political system", "All governments have agreed to accept it as legal tender", "It cannot be used in international trade"],
+        answer: 1,
+        feedback: "Exactly. Bitcoin's neutrality is one of its most strategically valuable properties. In a world of political and economic tension, a neutral, uncorrelated asset becomes increasingly valuable."
+      },
+      {
+        q: "According to the chapter, what is the primary concern of large institutional capital allocators?",
+        options: ["Maximizing short-term quarterly returns", "Generating viral marketing campaigns around new assets", "Preserving purchasing power over time", "Complying with the latest SEC regulations"],
+        answer: 2,
+        feedback: "Correct. Institutions managing capital at scale operate on long time horizons. Their core mandate is purchasing power preservation — which is why Bitcoin's fixed supply is structurally attractive."
+      },
+      {
+        q: "The chapter describes two monetary systems 'operating simultaneously.' Which best describes the emerging system?",
+        options: ["Central bank digital currencies (CBDCs) backed by gold", "Digital assets, programmatic scarcity, and decentralized networks", "Blockchain-based fiat currencies issued by the G7", "High-yield savings accounts with inflation protection"],
+        answer: 1,
+        feedback: "Correct. The emerging system is characterized by digital assets, programmatic scarcity (fixed supply rules written in code), and decentralized networks with no central authority."
+      },
+      {
+        q: "What does the course describe as a 'more plausible path' for Bitcoin's future role in global finance?",
+        options: ["Bitcoin immediately replacing all national currencies", "Bitcoin becoming a reserve asset that complements existing financial systems", "Bitcoin being outlawed by major economies", "Bitcoin merging with the U.S. Dollar into a hybrid currency"],
+        answer: 1,
+        feedback: "Right. Full replacement of global fiat systems would require extraordinary coordination. The more realistic scenario is Bitcoin as a complementary reserve asset — held alongside existing reserves, used as collateral, and integrated into financial instruments."
+      },
+      {
+        q: "Which of the following best describes 'decentralization' as it applies to Bitcoin?",
+        options: ["Bitcoin is stored in multiple data centers owned by Satoshi Nakamoto", "Control is distributed across a global network with no single point of authority or failure", "Each country operates its own version of the Bitcoin network", "Bitcoin mining is only permitted in politically neutral countries"],
+        answer: 1,
+        feedback: "Correct. Decentralization means no government, central bank, or executive body controls Bitcoin. It is maintained by a distributed network, making censorship and single-point failure impossible."
+      },
+      {
+        q: "The chapter introduces Bitcoin as a potential 'new base layer' for finance, analogous to which historical model?",
+        options: ["The Bretton Woods currency system of floating exchange rates", "Gold-backed currency systems where money was tied to a physical commodity", "The SWIFT interbank messaging system", "The Federal Deposit Insurance Corporation (FDIC) guarantee system"],
+        answer: 1,
+        feedback: "Exactly right. Historically, monetary systems were backed by something scarce — gold. Bitcoin introduces the possibility of a digitally native, verifiable, scarce base layer that could serve a similar anchoring function."
+      },
+    ],
+  },
+  {
+    id: 3,
+    title: "What Are Cryptocurrencies?",
+    subtitle: "From One Form of Money to an Entire Digital Economy",
+    eyebrow: "Chapter 03",
+    icon: "🌐",
+    concepts: ["Blockchain Networks", "Smart Contracts", "Programmable Value", "Stablecoins", "DeFi Foundations"],
+    sections: [
+      {
+        heading: "When Money Became Something More",
+        body: `When Bitcoin was introduced, it arrived with a single, focused purpose: to create a form of money that did not require a bank. For the first time in modern history, value could move directly from one person to another — without permission, without intermediaries, without relying on institutional trust.\n\nBut once people understood that money could exist without banks, a new question emerged: What else could be built on top of this idea? If value could be transferred without trust, then agreements could be executed without trust. If agreements could be executed without trust, then entire systems — financial, legal, and economic — could be rebuilt without centralized control.`,
+      },
+      {
+        heading: "Defining Cryptocurrency the Right Way",
+        body: `To understand cryptocurrencies properly, you have to let go of the idea that they are all trying to be money. Some are. But many are not.\n\nA more accurate definition: Cryptocurrencies are digital assets that exist on blockchain networks and can represent value, ownership, or access — without relying on centralized control.\n\nIn this new environment, a single token might represent a unit of value, access to a platform, ownership in a network, or voting power in a system. What you are looking at is not just money — it is digital infrastructure expressed as assets.`,
+      },
+      {
+        heading: "The Power of Programmable Value",
+        body: `The next major evolution came with platforms like Ethereum, which introduced the concept of smart contracts. A smart contract is not a traditional contract — it is a piece of code that automatically executes an agreement when certain conditions are met. No middleman. No delay. No need for enforcement. The system simply does what it was programmed to do.\n\nOnce money becomes programmable, it stops being passive. It becomes active. Value can move automatically, respond to conditions, interact with other systems, and execute strategies without constant oversight. This transforms money from something static into something dynamic.`,
+      },
+      {
+        heading: "The Different Roles Cryptocurrencies Play",
+        body: `As the ecosystem expanded, different types of cryptocurrencies emerged, each serving a specific role.\n\nSome, like Bitcoin, focus on storing value over time. Others, like Solana or Ethereum, act as platforms that power entire applications. Stablecoins, such as USDC, are designed to maintain a stable value by tracking traditional currencies — used for payments, trading, and as a bridge between traditional finance and crypto. Beyond that, there are tokens that grant access to services, tokens that represent ownership, and tokens that allow participation in governance decisions.`,
+      },
+    ],
+    keyTerms: [
+      { term: "Smart Contract", def: "Self-executing code on a blockchain that automatically performs actions when predetermined conditions are met — no middleman required." },
+      { term: "Stablecoin", def: "A cryptocurrency designed to maintain price stability by pegging its value to a traditional currency like the U.S. Dollar (e.g., USDC)." },
+      { term: "Blockchain", def: "A distributed public ledger that records transactions across thousands of participants — no single entity controls it." },
+      { term: "Programmable Value", def: "The ability for money/tokens to execute logic automatically — moving, interacting with systems, and responding to conditions without human intervention." },
+      { term: "Governance Token", def: "A token that grants its holder voting rights in decisions about a blockchain protocol or decentralized organization." },
+    ],
+    closingThought: "The evolution from Bitcoin to cryptocurrency is not just about adding more coins to the market. It represents a shift from a single solution — decentralized money — to an entire ecosystem where value can move, operate, and interact in ways that were never possible before.",
+    reflections: [
+      "In what ways do cryptocurrencies differ from traditional money beyond simply being digital?",
+      "How does programmability change the role of money in a financial system?",
+      "Why is decentralization important in the context of financial infrastructure?",
+      "What risks come with interacting in an open, permissionless financial system?",
+      "How does this new system change the way energy (money) can be used?",
+    ],
+    quiz: [
+      {
+        q: "How does BWS define 'cryptocurrency' beyond just digital money?",
+        options: ["Digital tokens issued by central banks to replace paper currency", "Digital assets that exist on blockchain networks representing value, ownership, or access without centralized control", "Encrypted versions of traditional bank accounts", "Government-regulated digital commodities traded on licensed exchanges"],
+        answer: 1,
+        feedback: "Correct. The BWS definition is intentionally broad — a token might represent value, access, ownership, or governance rights. It is digital infrastructure expressed as assets."
+      },
+      {
+        q: "What was the original, singular purpose of Bitcoin when it launched?",
+        options: ["To enable smart contract execution on a global scale", "To create a form of money that did not require a bank", "To tokenize real-world assets like gold and real estate", "To build a decentralized social media platform"],
+        answer: 1,
+        feedback: "Correct. Bitcoin's original purpose was focused: peer-to-peer value transfer without banks or intermediaries. Everything else in the ecosystem evolved from that single breakthrough."
+      },
+      {
+        q: "What is a 'smart contract' as described in this chapter?",
+        options: ["A legal agreement reviewed by blockchain lawyers", "A piece of code that automatically executes an agreement when predefined conditions are met", "A physical contract stored in an encrypted digital vault", "An insurance policy underwritten by a cryptocurrency exchange"],
+        answer: 1,
+        feedback: "Right. Smart contracts remove the middleman entirely. The code executes automatically — no intermediary, no delay, no ability for either party to interfere with the outcome."
+      },
+      {
+        q: "Which platform is described as pioneering the concept of smart contracts?",
+        options: ["Bitcoin", "Ripple (XRP)", "Ethereum", "Litecoin"],
+        answer: 2,
+        feedback: "Correct. Ethereum introduced programmable blockchain infrastructure, enabling smart contracts and launching an entirely new layer of the digital economy beyond simple value transfer."
+      },
+      {
+        q: "What is the primary function of a stablecoin like USDC?",
+        options: ["To generate high yields through automated trading strategies", "To maintain a stable value pegged to a traditional currency for use in payments and trading", "To represent voting power in a decentralized autonomous organization", "To store value in a fixed-supply asset immune to inflation"],
+        answer: 1,
+        feedback: "Correct. Stablecoins like USDC are designed for stability and utility — payments, trading, and bridging between traditional finance and crypto — not for speculative appreciation."
+      },
+      {
+        q: "What does 'programmable value' mean in the context of cryptocurrency?",
+        options: ["A programmer can change the total supply of Bitcoin at any time", "Money can be coded to move automatically, respond to conditions, and execute strategies without constant human oversight", "Crypto assets can only be used within specific software applications", "The value of a token is set by the developer who programs it"],
+        answer: 1,
+        feedback: "Correct. Programmable value transforms money from passive storage into an active participant — it can execute, interact, respond, and operate without human intervention at each step."
+      },
+      {
+        q: "According to the text, what is the 'real breakthrough' of blockchain technology?",
+        options: ["The ability to create anonymous untraceable payments", "The ability to create trustless systems where agreements execute without central authority", "The ability to tokenize physical gold and silver", "The ability to process more transactions per second than Visa"],
+        answer: 1,
+        feedback: "Exactly. The real breakthrough was trustlessness — not just trustless money, but trustless agreements, trustless systems. That realization opened the door to rebuilding entire financial and legal infrastructure."
+      },
+      {
+        q: "Which of the following is NOT listed as a role that cryptocurrency tokens can play?",
+        options: ["A unit of value", "Voting power in a governance system", "Ownership in a network", "A physical commodity title registered with a government"],
+        answer: 3,
+        feedback: "Correct. Government-registered commodity titles are a traditional, centralized construct. BWS describes crypto tokens as representing value, ownership, access, and governance — all without central authority."
+      },
+      {
+        q: "The chapter warns that cryptocurrency 'rewards those who take the time to learn.' What specific risk is highlighted?",
+        options: ["Taxation of crypto gains by the IRS", "Scams, unstable projects, high volatility, and the complexity of how these systems work", "Over-regulation by the Securities and Exchange Commission", "The environmental impact of proof-of-work mining"],
+        answer: 1,
+        feedback: "Right. The course is honest about the risks: scams, unstable projects, volatility, and complexity. This space does not protect the careless — it rewards the disciplined and educated."
+      },
+      {
+        q: "How does the chapter connect cryptocurrency back to the 'stored energy' framework from Chapter 1?",
+        options: ["Crypto mining uses massive amounts of physical energy to power servers", "Cryptocurrency allows your stored energy to be directed, programmed, and utilized in new ways — it is no longer sitting still, it is participating", "Stablecoins allow you to earn interest on your stored energy", "Bitcoin automatically adjusts its value based on your personal energy expenditure"],
+        answer: 1,
+        feedback: "Correct. Chapter 3 expands the framework: your energy is no longer just stored — it is active. In a programmable financial system, your assets can interact with protocols, generate yield, and execute strategies."
+      },
+    ],
+  },
+  {
+    id: 4,
+    title: "Wallets — Who Really Controls Your Money?",
+    subtitle: "From Storage to Signers of Your Digital Life",
+    eyebrow: "Chapter 04",
+    icon: "🔑",
+    concepts: ["Wallets as Signers", "Private Keys", "Custodial vs Non-Custodial", "Seed Phrase Authority", "Hot vs Cold Storage"],
+    sections: [
+      {
+        heading: "The Illusion of Ownership",
+        body: `You may log into an app and see a balance. You may watch numbers go up and down. But none of that determines ownership. Ownership in crypto is not about what you can see — it is about what you can authorize.\n\nOwnership is determined by one thing: the ability to approve, or deny, the movement of your assets. And that ability comes from your keys. The word "wallet" creates a misunderstanding from the start — it makes people think of storage. But your crypto does not live on your phone, your computer, or inside any device. It exists on the blockchain. What a wallet actually does is give you the ability to interact with your assets by managing your private keys.`,
+      },
+      {
+        heading: "From Wallets to Signers",
+        body: `As the crypto ecosystem matured, the language began to change — because calling these tools "wallets" created confusion. It led people to believe their assets were inside the device. Modern understanding reframes these tools as Signers.\n\nThis shift matters. When you send crypto, nothing physically moves from your device. Instead: you create a transaction, your wallet (signer) approves it using your private key, the network verifies that approval, and the transaction is executed on the blockchain. Your wallet doesn't hold your money. Your wallet authorizes your money to move.`,
+      },
+      {
+        heading: "Custodial vs. Non-Custodial",
+        body: `Custodial platforms — like Coinbase, Robinhood, Binance, and Gemini — hold your keys on your behalf. That means they are the ones signing transactions. You request an action. They approve it. You don't have direct control. You have access, permissions within their system, and a claim to assets — but the final authority sits with them.\n\nNon-custodial wallets return that power to you. You generate your own keys. You hold your own seed phrase. And most importantly: you are the one signing every transaction. Hot wallets like Trust Wallet and Phantom are always-available signers — convenient but connected to the internet. Cold wallets like Ledger and Trezor keep your signing authority offline, providing a much higher level of security.`,
+      },
+      {
+        heading: "The Seed Phrase: Your Root Authority",
+        body: `Every non-custodial wallet generates a seed phrase. This is not just a backup. It is the source of your signing power. From it, your keys are derived. From those keys, your authority is established.\n\nIf you lose it, you lose access permanently. If someone else gains it, they gain full control. There is no recovery process — because there is no central authority. The seed phrase is the master key to your digital financial life. Protecting it is not optional. It is the most critical security responsibility you have as a sovereign holder of digital assets.`,
+      },
+    ],
+    keyTerms: [
+      { term: "Private Key", def: "A cryptographic code that proves ownership of your assets and authorizes transactions — whoever holds it controls the funds." },
+      { term: "Signer", def: "The modern reframing of a 'wallet' — a tool that signs transactions, proves intent and identity, and provides digital consent." },
+      { term: "Seed Phrase", def: "A sequence of 12–24 words that is the root source of all your private keys — the master backup of your entire wallet." },
+      { term: "Custodial", def: "A platform that holds your keys on your behalf — you have access, but they have authority." },
+      { term: "Non-Custodial", def: "A setup where you generate and hold your own keys — you are the sole signer and have full authority over your assets." },
+      { term: "Cold Wallet", def: "An offline signing device (e.g., Ledger, Trezor) where transactions are signed without internet exposure — highest security tier." },
+    ],
+    closingThought: "In the traditional system, you trust institutions to hold and move your money. In this new system, that trust is replaced with responsibility. You are no longer just a participant. You are the authority. Once you understand that your wallet is not a container — but a signature — you begin to understand what true ownership actually looks like.",
+    reflections: [
+      "What does it actually mean to 'own' cryptocurrency?",
+      "Why is the term 'signer' more accurate than 'wallet'?",
+      "What are the risks of letting someone else control your keys?",
+      "How does offline signing improve security against attacks?",
+      "Where is your energy currently controlled — by you, or by a system?",
+    ],
+    quiz: [
+      {
+        q: "According to BWS, what is the single factor that determines true ownership of cryptocurrency?",
+        options: ["Having a verified account on a licensed exchange", "The ability to approve or deny the movement of your assets — controlled by your private keys", "The dollar value displayed in your exchange dashboard", "Holding a printed certificate of cryptocurrency ownership"],
+        answer: 1,
+        feedback: "Correct. Seeing a balance is not ownership. Control over the private key — the signing authority — is what constitutes real ownership in the crypto ecosystem."
+      },
+      {
+        q: "Where does your cryptocurrency actually exist?",
+        options: ["Inside your hardware wallet device", "On your phone's secure enclave chip", "On the blockchain — the wallet only manages your keys to interact with it", "On servers owned by your cryptocurrency exchange"],
+        answer: 2,
+        feedback: "Right. Nothing lives 'inside' a wallet. Your assets exist on the distributed blockchain. Your wallet is merely the tool that gives you signing authority to interact with those on-chain assets."
+      },
+      {
+        q: "Why does BWS prefer the term 'signer' over 'wallet'?",
+        options: ["Because 'wallet' is a trademarked term owned by PayPal", "Because it accurately describes what the device does — it signs transactions and authorizes movement — rather than implying it stores assets", "Because signers have higher transaction limits than wallets", "Because hardware signers earn staking rewards while wallets do not"],
+        answer: 1,
+        feedback: "Exactly. The reframe from 'wallet' to 'signer' eliminates the misconception that assets are stored in a device. It accurately captures what these tools actually do: sign, authorize, and prove intent."
+      },
+      {
+        q: "When you use a custodial platform like Coinbase or Binance, who is actually signing your transactions?",
+        options: ["You, using a biometric signature on your phone", "The platform — they hold your keys and sign on your behalf", "A smart contract that verifies your identity", "The blockchain network itself through consensus"],
+        answer: 1,
+        feedback: "Correct. On custodial platforms, you have a claim to assets and access within their system — but the exchange holds the keys and controls the signing. Your 'ownership' is contingent on their policies and solvency."
+      },
+      {
+        q: "What is the seed phrase, and why is it described as 'root authority'?",
+        options: ["A PIN code to unlock your hardware device", "A sequence of words from which all your private keys are derived — the master source of your entire wallet's control", "A password that encrypts your crypto on an exchange", "A biometric hash stored on your phone's secure chip"],
+        answer: 1,
+        feedback: "Correct. The seed phrase is not just a backup — it is the origin of your entire key structure. Whoever has it can regenerate your keys on any device and take full control of all associated assets."
+      },
+      {
+        q: "What is the key security advantage of a cold wallet (e.g., Ledger, Trezor)?",
+        options: ["It stores more cryptocurrencies than hot wallets", "Transactions are created online but signed offline — the private key never touches the internet", "It automatically backs up your seed phrase to the cloud", "It comes with FDIC insurance for up to $250,000 in assets"],
+        answer: 1,
+        feedback: "Right. The offline signing model is the core security advantage of cold wallets. By keeping the private key air-gapped from the internet, it eliminates the largest attack vector for digital asset theft."
+      },
+      {
+        q: "What is the consequence of losing your seed phrase on a non-custodial wallet?",
+        options: ["You can recover access by contacting the wallet manufacturer's support team", "You permanently lose access to all associated assets — there is no recovery process", "Your assets are automatically sent to a backup address you registered at setup", "Your exchange will restore access after identity verification"],
+        answer: 1,
+        feedback: "Correct. This is one of the most important truths in self-custody: there is no recovery. No central authority. No support ticket. The seed phrase is the only path to your assets — losing it means losing everything."
+      },
+      {
+        q: "Hot wallets like Trust Wallet and Phantom are described as offering which trade-off?",
+        options: ["Maximum security with no internet connectivity", "Convenience and real-time access — but increased risk due to constant internet connection", "Government-backed insurance for assets stored within them", "Slower transactions but significantly lower gas fees"],
+        answer: 1,
+        feedback: "Right. Hot wallets prioritize speed and accessibility — you can interact with DeFi apps in real time. But their internet connection is an attack surface. They are best used for active trading, not long-term storage."
+      },
+      {
+        q: "How does BWS connect wallet ownership back to the 'stored energy' framework?",
+        options: ["Wallets physically convert electricity into Bitcoin through mining", "Your wallet (signer) is the tool that gives you the power to release or restrict the energy you've stored in digital assets", "Wallets generate yield by lending your stored energy to institutions", "Hot wallets earn more energy through Proof-of-Stake rewards"],
+        answer: 1,
+        feedback: "Correct. The energy framework runs throughout the course. Your wallet is not just a tool — it is your sovereignty over the energy you've accumulated and stored. Losing that key means losing control of your life's work."
+      },
+      {
+        q: "Which of the following statements about non-custodial wallets is TRUE?",
+        options: ["They require KYC (Know Your Customer) identity verification to generate keys", "You generate your own keys, hold your own seed phrase, and are the sole authority signing every transaction", "They guarantee 100% protection against smart contract exploits", "They automatically report your transactions to tax authorities"],
+        answer: 1,
+        feedback: "Correct. Non-custodial wallets are the foundation of self-sovereignty. No KYC required to generate keys, no institution with authority over your assets, and no one else's signature on your transactions."
+      },
+    ],
+  },
+  {
+    id: 5,
+    title: "From Web2 to Web3 — The Emergence of DeFi",
+    subtitle: "How the Internet Evolved from Controlled Access to Ownership of Value",
+    eyebrow: "Chapter 05",
+    icon: "🔗",
+    concepts: ["Web2 Participation Without Ownership", "Web3 Ownership Layer", "Protocols vs Platforms", "DeFi Architecture", "Trustless Finance"],
+    sections: [
+      {
+        heading: "Web2: Participation Without Ownership",
+        body: `Most people don't question the internet. They use it. But what most people are interacting with is not the final version of the internet — it is a phase. A very specific phase built around one core idea: you can participate, but you do not own.\n\nWeb2 gave the world convenience and scale. But the entire system was built on a silent agreement — one that most users never consciously accepted. You were allowed to use the platform. In exchange, the platform owned everything around you. You posted content. You built audiences. You generated engagement. You contributed data. And all of that activity — every bit of your time and energy — was captured inside systems you did not control.`,
+      },
+      {
+        heading: "The Parallel Between Web2 and Traditional Finance",
+        body: `Web2 mirrors traditional finance in a profound way. Banks hold your money — platforms hold your data. Banks control access to funds — platforms control access to audiences. Banks set the rules — platforms set the rules. In both systems, the user is dependent. In both systems, control is centralized. And in both systems, the majority of value flows toward the entity that owns the infrastructure.\n\nCreators started realizing they didn't own their audience — reach could disappear overnight due to algorithm changes. Businesses realized their distribution depended on platforms they didn't control. At the same time, Bitcoin introduced a new idea: you can own value directly without needing a central authority.`,
+      },
+      {
+        heading: "Web3: Rebuilding Around Ownership",
+        body: `Web3 is not just a new version of websites. It is a rethinking of the internet's foundation. Instead of building systems where users are participants inside platforms, Web3 attempts to build systems where users are owners within networks.\n\nIn Web2, your identity is tied to an account created by a company. In Web3, your identity is tied to a wallet that you control. That wallet is your identity, access point, and authorization mechanism — allowing you to move across systems without needing permission from each one individually.\n\nThe most important structural shift: Web2 is built on platforms. Web3 is built on protocols. A platform is owned. A protocol is shared. A platform can change the rules at any time. A protocol follows rules defined in code and executed automatically. In Web2, you trust the company. In Web3, you trust the system.`,
+      },
+      {
+        heading: "DeFi: Financial Services Without Intermediaries",
+        body: `Decentralized Finance, or DeFi, is the financial layer built on top of Web3. It takes the core functions of traditional finance and removes the intermediaries. Instead of relying on institutions, DeFi relies on smart contracts that perform the roles banks, brokers, and lenders used to control — managing lending, borrowing, trading, liquidity, and asset exchange.\n\nIn traditional finance, access is based on approval. You apply. You wait. You get accepted or rejected. In DeFi, access is based on participation. If you have the assets and understand how the system works, you can interact with it. But DeFi does not protect you from mistakes — there is no reversal process, no safety net beyond what you build for yourself.`,
+      },
+    ],
+    keyTerms: [
+      { term: "Web2", def: "The current dominant internet model — centralized platforms where users create value but platforms own it." },
+      { term: "Web3", def: "An internet paradigm built on decentralized protocols where users can own their identity, assets, and participation." },
+      { term: "Protocol", def: "A shared, code-based system with rules that execute automatically — not owned by any single party, unlike a platform." },
+      { term: "DeFi", def: "Decentralized Finance — financial services (lending, borrowing, trading, liquidity) built on smart contracts, without traditional intermediaries." },
+      { term: "Liquidity", def: "The availability of assets in a DeFi protocol that enables trading and lending to function — provided by participants, not banks." },
+    ],
+    closingThought: "The internet is no longer just a place where information flows. It is becoming a place where value lives, moves, and grows. And just like with money, the most important question is not whether you are using the system — it is whether you understand who controls it, and where you stand within it.",
+    reflections: [
+      "What does it mean to participate in a system versus owning part of it?",
+      "How does Web2's structure limit your control over the value you create?",
+      "Why is the shift from platforms to protocols structurally important?",
+      "What makes DeFi fundamentally different from traditional finance?",
+      "What responsibilities come with owning your financial tools in a trustless system?",
+    ],
+    quiz: [
+      {
+        q: "How does BWS describe the core design principle of Web2?",
+        options: ["Users own everything they create on the platform", "You can participate — but you do not own", "Platforms share revenue equally with their most active users", "Web2 is a decentralized network owned by no single entity"],
+        answer: 1,
+        feedback: "Correct. Web2's silent agreement is participation-without-ownership. Users generate immense value — content, data, attention — but the platform captures and monetizes that value."
+      },
+      {
+        q: "What structural parallel does BWS draw between Web2 platforms and traditional banks?",
+        options: ["Both charge monthly subscription fees for access", "Both hold assets or data on behalf of users, control access, and set the rules — centering power in the infrastructure owner", "Both operate under identical regulatory frameworks globally", "Both use the same encryption standards for data protection"],
+        answer: 1,
+        feedback: "Exactly. Banks hold money and control access to funds; platforms hold data and control access to audiences. In both cases, the entity owning the infrastructure captures the majority of value — and sets the rules."
+      },
+      {
+        q: "In Web3, your identity is tied to which of the following?",
+        options: ["A government-issued digital ID verified by a blockchain oracle", "A wallet that you control — serving as your identity, access point, and authorization mechanism", "An account registered with a licensed Web3 exchange", "A social media profile linked to your blockchain address"],
+        answer: 1,
+        feedback: "Correct. Your wallet is your Web3 identity. It travels with you across protocols without needing permission from each one. This is sovereignty — identity that belongs to you, not a company."
+      },
+      {
+        q: "What is the key structural difference between a 'platform' and a 'protocol'?",
+        options: ["Platforms are faster and more scalable than protocols", "A platform is owned and can change rules unilaterally; a protocol is shared and follows rules written in code that execute automatically", "Protocols require a monthly fee while platforms are free to use", "Platforms offer more security guarantees than open protocols"],
+        answer: 1,
+        feedback: "Right. This is the fundamental shift. A platform = centralized ownership + mutable rules. A protocol = shared infrastructure + immutable code-defined rules. Trust moves from the company to the system."
+      },
+      {
+        q: "In DeFi, access to financial services is based on what?",
+        options: ["Credit score and income verification through a licensed broker", "Participation — if you have the assets and understand the system, you can interact with it", "A whitelist approved by the protocol's founding team", "A government-issued digital asset license"],
+        answer: 1,
+        feedback: "Correct. DeFi's access model is permissionless. No application. No approval or rejection. If you have assets and understand the system, the protocol will interact with you — regardless of geography, credit history, or identity."
+      },
+      {
+        q: "What does BWS describe as the critical limitation of DeFi systems?",
+        options: ["DeFi protocols can only process 10 transactions per second", "DeFi does not protect you from mistakes — there is no reversal, no customer service, and no safety net beyond what you build yourself", "DeFi requires KYC verification before your first transaction", "DeFi assets are frozen for a 30-day cooling-off period after purchase"],
+        answer: 1,
+        feedback: "Correct. DeFi's power comes with absolute responsibility. Mistakes are permanent. There's no one to call. This is why education is not optional in this space — it is the only protection available."
+      },
+      {
+        q: "How does Web3 change the concept of 'trust' in financial systems?",
+        options: ["Web3 eliminates all need for trust — even between the user and their own device", "Trust moves from companies and institutions to the system itself — you trust the code, not the intermediary", "Web3 replaces institutional trust with government-backed crypto regulation", "Web3 requires trusting a global network of anonymous miners"],
+        answer: 1,
+        feedback: "Exactly. In Web2 and TradFi, you trust the company. In Web3, you trust the system — the rules embedded in code. This is what 'trustless' means: not that there's no trust, but that trust is placed in verifiable rules, not fallible institutions."
+      },
+      {
+        q: "What realization caused creators and businesses to question Web2 during its evolution?",
+        options: ["Platform servers were too slow for real-time content delivery", "Creators discovered they didn't own their audience — algorithmic changes could eliminate reach overnight, and businesses had no control over platform-dependent distribution", "Advertising revenue was exclusively captured by the platform's shareholders", "Web2 platforms began charging creators for each post they published"],
+        answer: 1,
+        feedback: "Right. The moment of awakening came when creators saw millions of followers but could lose all reach due to an algorithm change. Businesses dependent on platforms realized they had built on land they didn't own."
+      },
+      {
+        q: "DeFi performs the roles of traditional financial institutions using which technology?",
+        options: ["Artificial intelligence chatbots that process loan applications", "Smart contracts — self-executing code that manages lending, borrowing, trading, and liquidity automatically", "Licensed blockchain custodians regulated by central banks", "Decentralized human arbitrators who review each transaction"],
+        answer: 1,
+        feedback: "Correct. Smart contracts replace the institutional middleman entirely. They manage the full spectrum of financial functions — automatically, transparently, and without human discretion or institutional overhead."
+      },
+      {
+        q: "The chapter connects all five concepts covered so far. Which statement best captures the integrated framework?",
+        options: ["Money → Bitcoin → Crypto → Wallets → Web3 → DeFi: each layer builds on the previous, forming a complete system for sovereign value ownership and movement", "Bitcoin → DeFi → Web3 → Wallets → Crypto → Money: each layer reduces risk and increases regulation", "Web3 is the endpoint, and all prior concepts are outdated once DeFi is adopted", "Money → Banking → Crypto → Exchanges → DeFi: a natural evolution toward regulated digital finance"],
+        answer: 0,
+        feedback: "Exactly right. The BWS framework is cumulative and intentional: Money is energy. Bitcoin protects it. Crypto makes it programmable. Wallets give you control. Web3 is the ownership environment. DeFi is where it moves and grows. Each layer depends on the ones before it."
+      },
+    ],
+  },
+  {
+    id: 6,
+    title: "The Final Position — Trading, Investing & the Value of Time",
+    subtitle: "Why the Future Is Not Measured in Dollars, But in Satoshis",
+    eyebrow: "Chapter 06",
+    icon: "📈",
+    concepts: ["Trading vs Investing", "Time in the Market", "Dollar-Cost Averaging", "Satoshi Measurement", "Long-Term Positioning"],
+    sections: [
+      {
+        heading: "Two Paths: Movement or Position",
+        body: `Every participant in this space eventually finds themselves at a crossroads — one that quietly shapes their entire outcome. Do you approach this as a trader, or as an investor?\n\nThe trader lives in the present moment. Every price move matters. Every chart becomes a signal. There is intensity in that approach and the possibility of quick gains — but there is also pressure. Trading requires you to be right, over and over again. Most people who enter this path don't realize what they've signed up for. What they often step into instead is a cycle of reaction — buying high, selling low, chasing momentum, and slowly losing both capital and confidence.`,
+      },
+      {
+        heading: "The Investor's Path: Direction Over Movement",
+        body: `The investor operates differently. Where the trader focuses on movement, the investor focuses on direction. Not "What will happen today?" but "What is happening over time?" The investor looks at systems, not moments.\n\nThey recognize that we are witnessing a shift in how value is stored, measured, and transferred. They understand that the dollar, while still dominant, is not designed to preserve value indefinitely. They understand that scarcity matters. And because of that understanding, they make a different decision. They choose to position themselves.`,
+      },
+      {
+        heading: "Dollar-Cost Averaging: Discipline Over Emotion",
+        body: `Time in the market is better than timing the market. Timing the market assumes you can predict the perfect moment — the exact bottom, the exact top. But markets are influenced by countless variables. Predicting them consistently is not just difficult. It is unrealistic for most people.\n\nDollar-Cost Averaging (DCA) is one of the simplest and most effective ways to bridge the gap between knowing you should invest long-term and actually executing consistently. DCA means committing to investing a fixed amount at regular intervals — regardless of price. You buy when the market is high. You buy when it is low. Over time, you stop reacting. You stop guessing. You stop chasing. And instead, you begin to build a position.`,
+      },
+      {
+        heading: "The Shift: From Dollars to Satoshis",
+        body: `For most of your life, value has been expressed in dollars. But what happens when the unit of measurement itself is unstable? When the dollar continues to lose purchasing power, the focus begins to change.\n\nPeople stop asking 'How many dollars is this worth?' and begin asking 'How much of this asset do I own?' Bitcoin introduces a new unit of measurement: the satoshi. Each Bitcoin is divisible into 100 million satoshis. In a system built on scarcity, ownership of units becomes more important than conversion into fiat. This is not just a technical detail — it is a mindset shift. The most important question becomes: How consistently are you accumulating?`,
+      },
+    ],
+    keyTerms: [
+      { term: "DCA (Dollar-Cost Averaging)", def: "Investing a fixed amount at regular intervals regardless of price — removes emotion, builds consistent positions over time." },
+      { term: "Satoshi", def: "The smallest unit of Bitcoin — each Bitcoin equals 100 million satoshis. The unit of long-term accumulation measurement." },
+      { term: "Time in the Market", def: "The strategy of maintaining consistent exposure to an asset over time, rather than trying to predict price movements." },
+      { term: "Positioning", def: "The investor's approach — accumulating exposure to a system you believe in, rather than reacting to its short-term movements." },
+      { term: "Timing the Market", def: "Attempting to predict optimal entry/exit points — described as unrealistic for most participants over the long run." },
+    ],
+    closingThought: "Most people will spend their time trying to outsmart the market. A few will take the time to understand the shift. Because in the end, this isn't just about making money. It's about recognizing that a new system is forming — and deciding whether you will chase it from the outside, or position yourself inside it early enough for time to do the rest.",
+    reflections: [
+      "Are you reacting to the market, or positioning within it?",
+      "What system is your energy currently stored in?",
+      "How long are you willing to stay committed to your position?",
+      "Are you measuring success in dollars — or in ownership of scarce assets?",
+    ],
+    quiz: [
+      {
+        q: "How does BWS define the core difference between a 'trader' and an 'investor'?",
+        options: ["Traders use technical analysis; investors use fundamental analysis", "Traders focus on short-term price movement; investors focus on the long-term direction of systems", "Traders hold assets for under 1 year; investors hold for over 10 years", "Traders use leverage; investors use cold storage wallets"],
+        answer: 1,
+        feedback: "Correct. The distinction is focus: traders react to moment-to-moment movement; investors position themselves within the long-term direction of a system they understand. One chases signals; the other builds."
+      },
+      {
+        q: "What cycle do most short-term traders fall into, according to this chapter?",
+        options: ["A virtuous cycle of consistent compounding and reinvestment", "A cycle of reaction — buying high, selling low, chasing momentum, and losing both capital and confidence", "A structured approach of fixed entry points and disciplined exit strategies", "A passive income cycle driven by staking rewards and DeFi yield farming"],
+        answer: 1,
+        feedback: "Right. BWS is candid about the reality: most retail traders enter a reactive cycle driven by emotion — they buy into hype and sell into fear, systematically underperforming the underlying asset."
+      },
+      {
+        q: "What does the phrase 'time IN the market' mean in this context?",
+        options: ["Spending long hours studying charts every trading day", "Maintaining consistent position exposure over time, rather than trying to predict entry/exit points", "Waiting for a market crash before making your first investment", "Timing your investment to coincide with Bitcoin's four-year halving cycle"],
+        answer: 1,
+        feedback: "Correct. Time in the market is about consistent exposure. If an asset is fundamentally strong, adoption is growing, and supply is limited — duration of participation matters more than perfection of timing."
+      },
+      {
+        q: "What is Dollar-Cost Averaging (DCA)?",
+        options: ["Exchanging dollars for multiple cryptocurrencies simultaneously to diversify risk", "Investing a fixed dollar amount at regular intervals regardless of price — removing emotion and building position through consistency", "Calculating your average purchase price across multiple trades to minimize tax liability", "Averaging the dollar value of your portfolio across different exchanges"],
+        answer: 1,
+        feedback: "Right. DCA's genius is simplicity: a fixed amount, on a fixed schedule, regardless of market sentiment. It removes the emotion and guesswork that cause most investors to underperform."
+      },
+      {
+        q: "What is a 'satoshi' in Bitcoin's denomination system?",
+        options: ["A type of Bitcoin wallet developed by Satoshi Nakamoto", "One millionth of a Bitcoin — the minimum unit for small transactions", "One hundred-millionth of a Bitcoin — the smallest unit of measurement", "A slang term for one full Bitcoin in street crypto culture"],
+        answer: 2,
+        feedback: "Correct. Each Bitcoin is divisible into 100 million satoshis. This granularity makes Bitcoin accessible at any price level and enables the satoshi-denominated accumulation mindset BWS promotes."
+      },
+      {
+        q: "Why does BWS suggest measuring wealth in satoshis rather than dollars?",
+        options: ["Because satoshi prices are lower and appear more impressive to investors", "Because when the dollar loses purchasing power, the more meaningful metric becomes how many units of a scarce asset you own — not what those units convert to in fiat", "Because the IRS requires tax reporting in satoshi denominations", "Because satoshis earn compound interest automatically over time"],
+        answer: 1,
+        feedback: "Exactly. The satoshi mindset is a shift from 'how much is this worth in dollars' to 'how much of this scarce asset do I own.' When the measuring stick (the dollar) is itself unstable, accumulating units of scarcity becomes the real game."
+      },
+      {
+        q: "According to the chapter, what is the hardest part of long-term investing?",
+        options: ["Learning to read technical chart patterns accurately", "Understanding complex DeFi protocols and smart contract risks", "Staying committed to the position — not abandoning it during volatility, narratives, or the urge to act", "Filing accurate cryptocurrency tax returns across multiple jurisdictions"],
+        answer: 2,
+        feedback: "Right. Understanding the strategy is straightforward. Executing it through market swings, fear, and competing narratives — staying still when everything screams 'act' — that is the discipline required."
+      },
+      {
+        q: "The chapter states that 'time is the multiplier.' What does this mean in the context of Bitcoin accumulation?",
+        options: ["The longer you hold, the more Bitcoin the protocol automatically generates for you", "In a system driven by scarcity and growing adoption, the duration of your position compounds its potential — time amplifies consistent accumulation", "Interest rates on Bitcoin savings accounts increase with time held", "Trading volume multiplies returns for long-term holders over time"],
+        answer: 1,
+        feedback: "Correct. In a system with a fixed supply and increasing adoption, every day you stay positioned potentially captures more of the value being transferred from old systems into new ones. Time multiplies the compounding effect."
+      },
+      {
+        q: "What risk does the chapter identify when an investor steps away from their long-term position without a clear reason?",
+        options: ["Capital gains tax liability triggers immediately", "They may miss a DCA window and lose their average cost advantage", "They risk breaking the compounding effect of time — the most powerful force available to a long-term investor in a scarce asset", "They forfeit staking rewards accumulated during their holding period"],
+        answer: 2,
+        feedback: "Right. Leaving a position prematurely — without a clear, principled reason — breaks the time-compounding effect. In a system where scarcity meets adoption, exiting and re-entering is almost always worse than staying."
+      },
+      {
+        q: "Which of the following best captures the final message of the entire BWS course?",
+        options: ["Buy Bitcoin immediately in large amounts before prices rise further", "A new financial system is forming — your choice is whether to chase it from the outside, or position yourself inside it early enough for time to do the rest", "Cryptocurrency is a high-risk speculative asset appropriate only for experienced investors", "DeFi protocols are ready to replace traditional banking for all financial needs today"],
+        answer: 1,
+        feedback: "Exactly. The entire six-chapter journey leads here: recognition that a shift is happening, and a clear-eyed choice about how you respond to it. Not urgency or fear — but informed positioning based on deep understanding."
+      },
+    ],
+  },
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+
+const state = {
+  currentView: 'home', // 'home' | 'chapter'
+  currentChapter: null,
+  quizAnswers: {},    // chapterId -> { qIdx: { selected, correct } }
+  quizSubmitted: {},  // chapterId -> bool
+  scores: {},         // chapterId -> { correct, total }
+};
+
+// ─── SIDEBAR ─────────────────────────────────────────────────────────────────
+
+function renderSidebar() {
+  const nav = document.getElementById('chapterNav');
+  const completedCount = Object.keys(state.scores).length;
+  const totalChapters = chapters.filter(c => !c.hidden).length;
+  const pct = Math.round((completedCount / totalChapters) * 100);
+
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  nav.innerHTML = chapters.filter(c => !c.hidden).map(ch => {
+    const isActive = state.currentChapter === ch.id;
+    const isCompleted = state.scores[ch.id] !== undefined;
+    const score = state.scores[ch.id];
+    return `
+      <button class="chapter-btn ${isActive ? 'active' : ''} ${isCompleted ? 'completed' : ''}"
+              onclick="navigate(${ch.id})">
+        <div class="ch-num">${isCompleted ? '' : ch.id}</div>
+        <div class="ch-info">
+          <div class="ch-title">${ch.title}</div>
+          <div class="ch-meta">${ch.quiz.length} Questions</div>
+        </div>
+        ${isCompleted ? `<div class="ch-score">${score.correct}/${score.total}</div>` : ''}
+      </button>
+    `;
+  }).join('');
+}
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+
+function navigate(chapterId) {
+  if (chapterId === 0) {
+    state.currentView = 'home';
+    state.currentChapter = null;
+  } else {
+    state.currentView = 'chapter';
+    state.currentChapter = chapterId;
+  }
+  renderAll();
+  window.scrollTo(0, 0);
+  // close mobile menu
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function renderAll() {
+  renderSidebar();
+  if (state.currentView === 'home') {
+    renderHome();
+  } else {
+    renderChapter(state.currentChapter);
+  }
+}
+
+// ─── HOME ─────────────────────────────────────────────────────────────────────
+
+function renderHome() {
+  const root = document.getElementById('appRoot');
+  const real = chapters.filter(c => !c.hidden);
+  root.innerHTML = `
+    <div class="home-screen">
+      <div class="home-eyebrow">Block Wall Street — Educational Series</div>
+      <div class="home-title">UNDERSTANDING THE<br><span>DIGITAL ASSET</span><br>FRONTIER</div>
+      <div class="home-subtitle">A comprehensive guide to money, Bitcoin, crypto, Web3 and the future of finance. Six chapters. Built to build operators.</div>
+
+      <div class="home-pillars">
+        ${real.map(ch => `
+          <div class="pillar-card" onclick="navigate(${ch.id})">
+            <div class="pillar-icon">${ch.icon}</div>
+            <div class="pillar-num">${ch.eyebrow}</div>
+            <div class="pillar-title">${ch.title}</div>
+            <div class="pillar-desc">${ch.subtitle}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <button class="home-start-btn" onclick="navigate(1)">BEGIN COURSE →</button>
+    </div>
+  `;
+}
+
+// ─── CHAPTER ─────────────────────────────────────────────────────────────────
+
+function renderChapter(id) {
+  const ch = chapters.find(c => c.id === id);
+  if (!ch) return;
+  const root = document.getElementById('appRoot');
+
+  const prevCh = chapters.find(c => c.id === id - 1 && !c.hidden);
+  const nextCh = chapters.find(c => c.id === id + 1);
+
+  root.innerHTML = `
+    <div class="topbar">
+      <div class="topbar-chapter">${ch.eyebrow} — ${ch.title.split('—')[0].trim()}</div>
+      <div class="topbar-actions">
+        <button class="btn btn-outline" onclick="navigate(0)">← Course Home</button>
+      </div>
+    </div>
+
+    <div class="content-area">
+      <!-- HEADER -->
+      <div class="chapter-header">
+        <div class="chapter-eyebrow">${ch.eyebrow}</div>
+        <div class="chapter-title">${ch.title.toUpperCase()}</div>
+        <div class="chapter-subtitle">${ch.subtitle}</div>
+      </div>
+
+      <div class="chapter-divider"></div>
+
+      <!-- CONCEPTS -->
+      <div class="concepts-bar">
+        <div class="concepts-label">Core Concepts in This Chapter</div>
+        <div class="concepts-list">
+          ${ch.concepts.map(c => `<span class="concept-tag">${c}</span>`).join('')}
+        </div>
+      </div>
+
+      <!-- SECTIONS -->
+      ${ch.sections.map(s => `
+        <div class="section-block">
+          <div class="section-heading">${s.heading}</div>
+          ${s.body.split('\n\n').map(p => `<p class="section-text">${p}</p>`).join('')}
+        </div>
+      `).join('<div class="chapter-divider"></div>')}
+
+      <!-- KEY TERMS -->
+      <div class="section-block">
+        <div class="section-heading">Key Terms</div>
+        <div class="key-term-grid">
+          ${ch.keyTerms.map(t => `
+            <div class="key-term-row">
+              <div class="key-term-label">${t.term}</div>
+              <div class="key-term-def">${t.def}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- CLOSING THOUGHT -->
+      <div class="quote-block">
+        <div class="quote-text">"${ch.closingThought}"</div>
+      </div>
+
+      <!-- REFLECTION -->
+      <div class="section-block reflection-section">
+        <div class="section-heading">Reflection Questions</div>
+        ${ch.reflections.map(r => `<div class="reflection-item">→ ${r}</div>`).join('')}
+      </div>
+
+      <!-- QUIZ -->
+      <div class="quiz-section" id="quizSection-${id}">
+        <div class="quiz-header">
+          <div class="quiz-title-wrap">
+            <div class="quiz-eyebrow">Knowledge Check</div>
+            <div class="quiz-title">CHAPTER ${id} QUIZ</div>
+          </div>
+          <div class="quiz-counter">Questions<span>${ch.quiz.length}</span></div>
+        </div>
+
+        ${ch.quiz.map((q, i) => renderQuestion(id, q, i)).join('')}
+
+        <div class="quiz-submit-bar">
+          <button class="btn btn-outline" onclick="resetQuiz(${id})">Reset Quiz</button>
+          <button class="btn btn-gold btn-lg" onclick="submitQuiz(${id})" id="submitBtn-${id}">
+            Submit Answers
+          </button>
+        </div>
+
+        <div class="quiz-result" id="quizResult-${id}"></div>
+      </div>
+
+    </div>
+
+    <div class="chapter-nav-footer">
+      ${id > 1 ? `<button class="btn btn-outline" onclick="navigate(${id - 1})">← Chapter ${id - 1}</button>` : '<div></div>'}
+      ${id < 6 ? `<button class="btn btn-gold" onclick="navigate(${id + 1})">Chapter ${id + 1} →</button>` : `<button class="btn btn-gold" onclick="navigate(0)">← Back to Home</button>`}
+    </div>
+  `;
+
+  // restore saved state
+  restoreQuizState(id);
+}
+
+function renderQuestion(chId, q, i) {
+  const letters = ['A', 'B', 'C', 'D'];
+  return `
+    <div class="question-card" id="qcard-${chId}-${i}">
+      <div class="question-num">Question ${i + 1} of ${chapters.find(c => c.id === chId).quiz.length}</div>
+      <div class="question-text">${q.q}</div>
+      <div class="options-list">
+        ${q.options.map((opt, j) => `
+          <button class="option-btn" id="opt-${chId}-${i}-${j}"
+                  onclick="selectOption(${chId}, ${i}, ${j})">
+            <span class="option-letter">${letters[j]}</span>
+            ${opt}
+          </button>
+        `).join('')}
+      </div>
+      <div class="feedback-row" id="fb-${chId}-${i}"></div>
+    </div>
+  `;
+}
+
+function selectOption(chId, qIdx, optIdx) {
+  if (state.quizSubmitted[chId]) return;
+
+  if (!state.quizAnswers[chId]) state.quizAnswers[chId] = {};
+  state.quizAnswers[chId][qIdx] = optIdx;
+
+  // update UI
+  const ch = chapters.find(c => c.id === chId);
+  const opts = ch.quiz[qIdx].options;
+  opts.forEach((_, j) => {
+    const btn = document.getElementById(`opt-${chId}-${qIdx}-${j}`);
+    if (btn) {
+      btn.classList.remove('correct', 'incorrect', 'reveal');
+      btn.style.borderColor = '';
+    }
+  });
+
+  const selectedBtn = document.getElementById(`opt-${chId}-${qIdx}-${optIdx}`);
+  if (selectedBtn) selectedBtn.style.borderColor = 'var(--gold-dim)';
+}
+
+function submitQuiz(chId) {
+  const ch = chapters.find(c => c.id === chId);
+  const answers = state.quizAnswers[chId] || {};
+  const total = ch.quiz.length;
+  let correct = 0;
+
+  ch.quiz.forEach((q, i) => {
+    const selected = answers[i];
+    const isCorrect = selected === q.answer;
+    if (isCorrect) correct++;
+
+    // update option styles
+    q.options.forEach((_, j) => {
+      const btn = document.getElementById(`opt-${chId}-${i}-${j}`);
+      if (!btn) return;
+      btn.disabled = true;
+      btn.style.borderColor = '';
+      if (j === q.answer) btn.classList.add(selected !== undefined ? 'reveal' : 'reveal');
+      if (selected === j && selected !== q.answer) btn.classList.add('incorrect');
+      if (selected === j && selected === q.answer) {
+        btn.classList.remove('reveal');
+        btn.classList.add('correct');
+      }
+    });
+
+    // show feedback
+    const fb = document.getElementById(`fb-${chId}-${i}`);
+    if (fb) {
+      fb.textContent = (selected !== undefined)
+        ? (isCorrect ? '✓ ' : '✗ ') + q.feedback
+        : '— You did not answer this question. ' + q.feedback;
+      fb.className = `feedback-row show ${isCorrect ? 'correct-fb' : 'incorrect-fb'}`;
+    }
+  });
+
+  state.quizSubmitted[chId] = true;
+  state.scores[chId] = { correct, total };
+
+  // show result
+  const pct = Math.round((correct / total) * 100);
+  let badge, msg;
+  if (pct >= 90) { badge = 'badge-gold'; msg = 'Outstanding. You have a command-level understanding of this material.'; }
+  else if (pct >= 70) { badge = 'badge-silver'; msg = 'Solid work. Review the questions you missed and revisit the section before moving on.'; }
+  else { badge = 'badge-bronze'; msg = 'Keep building. Re-read the chapter carefully — the concepts here are foundational.'; }
+
+  const resultEl = document.getElementById(`quizResult-${chId}`);
+  if (resultEl) {
+    resultEl.className = 'quiz-result show';
+    resultEl.innerHTML = `
+      <div class="result-score">${pct}%</div>
+      <div class="result-label">${correct} of ${total} correct</div>
+      <div class="result-message">${msg}</div>
+      <div class="result-badge ${badge}">${pct >= 90 ? '🏆 MASTERY' : pct >= 70 ? '✦ PROFICIENT' : '⟳ KEEP STUDYING'}</div>
+    `;
+  }
+
+  const submitBtn = document.getElementById(`submitBtn-${chId}`);
+  if (submitBtn) submitBtn.disabled = true;
+
+  renderSidebar();
+}
+
+function resetQuiz(chId) {
+  delete state.quizAnswers[chId];
+  delete state.quizSubmitted[chId];
+  delete state.scores[chId];
+  renderAll();
+}
+
+function restoreQuizState(chId) {
+  if (!state.quizSubmitted[chId]) return;
+  submitQuiz(chId);
+}
+
+// ─── MOBILE MENU ─────────────────────────────────────────────────────────────
+
+function toggleMenu() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderAll();
+</script>
+</body>
+</html>
